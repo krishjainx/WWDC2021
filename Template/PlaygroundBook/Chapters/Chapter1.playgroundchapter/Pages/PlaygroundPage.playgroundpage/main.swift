@@ -1,14 +1,9 @@
 /*:
- 
- # Physics of Cut The Rope
- 
-Hi, there. This project shows the physics of a simple game like cut the rope.
- 
-*/
+  # Physics of Cut The Rope
+ Hi, there. This project shows the physics of a simple game like cut the rope.
+ */
 
-
-//#-hidden-code
-
+// #-hidden-code
 import AVFoundation
 import BookCore
 import CoreGraphics
@@ -17,27 +12,30 @@ import PlaygroundSupport
 import SpriteKit
 import UIKit
 
-public class GameView: SKView {
+var torqueValue: CGFloat = 1
+var thePercentageOfScreenX = CGFloat.random(in: 0.35..<1)
 
-  public override init(frame: CGRect) {
+public class GameView: SKView {
+    override public init(frame: CGRect) {
         super.init(frame: frame)
 
         // Configure the view.
         showsFPS = true
         showsNodeCount = true
         ignoresSiblingOrder = true
-        
+
         // Create and configure the scene.
-    let scene = GameScene(size: frame.size)
+        let scene = GameScene(size: frame.size)
         scene.scaleMode = .aspectFill
-    
+
         // Present the scene.
         presentScene(scene)
-  }
+    }
 
-  required init?(coder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
-  }
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 class VineNode: SKNode {
@@ -53,26 +51,26 @@ class VineNode: SKNode {
 
         self.name = name
     }
- 
+
     required init?(coder aDecoder: NSCoder) {
         length = aDecoder.decodeInteger(forKey: "length")
         anchorPoint = aDecoder.decodeCGPoint(forKey: "anchorPoint")
 
         super.init(coder: aDecoder)
     }
- 
+
     func addToScene(_ scene: SKScene) {
         // add vine to scene
         zPosition = Layer.vine
         scene.addChild(self)
-   
+
         // create vine holder
         let vineHolder = SKSpriteNode(imageNamed: ImageName.vineHolder)
         vineHolder.position = anchorPoint
         vineHolder.zPosition = 1
-       
+
         addChild(vineHolder)
-       
+
         vineHolder.physicsBody = SKPhysicsBody(circleOfRadius: vineHolder.size.width / 2)
         vineHolder.physicsBody?.isDynamic = false
         vineHolder.physicsBody?.categoryBitMask = PhysicsCategory.vineHolder
@@ -84,15 +82,15 @@ class VineNode: SKNode {
             let offset = vineSegment.size.height * CGFloat(i + 1)
             vineSegment.position = CGPoint(x: anchorPoint.x, y: anchorPoint.y - offset)
             vineSegment.name = name
-     
+
             vineSegments.append(vineSegment)
             addChild(vineSegment)
-     
+
             vineSegment.physicsBody = SKPhysicsBody(rectangleOf: vineSegment.size)
             vineSegment.physicsBody?.categoryBitMask = PhysicsCategory.vine
             vineSegment.physicsBody?.collisionBitMask = PhysicsCategory.vineHolder
         }
-   
+
         // set up joint for vine holder
         let joint = SKPhysicsJointPin.joint(
             withBodyA: vineHolder.physicsBody!,
@@ -113,21 +111,21 @@ class VineNode: SKNode {
                 anchor: CGPoint(
                     x: nodeA.frame.midX,
                     y: nodeA.frame.minY))
-     
+            joint.frictionTorque = torqueValue
             scene.physicsWorld.add(joint)
         }
     }
- 
+
     func attachToPrize(_ prize: SKSpriteNode) {
         let lastNode = vineSegments.last!
         lastNode.position = CGPoint(x: prize.position.x,
                                     y: prize.position.y + prize.size.height * 0.1)
-       
+
         // set up connecting joint
         let joint = SKPhysicsJointPin.joint(withBodyA: lastNode.physicsBody!,
                                             bodyB: prize.physicsBody!,
                                             anchor: lastNode.position)
-       
+
         prize.scene?.physicsWorld.add(joint)
     }
 }
@@ -179,7 +177,7 @@ class GameScene: SKScene {
     private var prize: SKSpriteNode!
     private var particles: SKEmitterNode?
     private var didCutVine = false
- 
+
     override func didMove(to view: SKView) {
         setUpPhysics()
         setUpScenery()
@@ -188,13 +186,13 @@ class GameScene: SKScene {
         setUpCrocodile()
         setUpAudio()
     }
- 
+
     private func setUpPhysics() {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0.0, dy: -9.8)
         physicsWorld.speed = 1.0
     }
- 
+
     private func setUpScenery() {
         let background = SKSpriteNode(imageNamed: "Background")
         background.anchorPoint = CGPoint(x: 0, y: 0)
@@ -202,7 +200,7 @@ class GameScene: SKScene {
         background.zPosition = Layer.background
         background.size = CGSize(width: size.width, height: size.height)
         addChild(background)
-   
+
         let water = SKSpriteNode(imageNamed: "Water")
         water.anchorPoint = CGPoint(x: 0, y: 0)
         water.position = CGPoint(x: 0, y: 0)
@@ -210,7 +208,7 @@ class GameScene: SKScene {
         water.size = CGSize(width: size.width, height: size.height * 0.2139)
         addChild(water)
     }
- 
+
     private func setUpPrize() {
         prize = SKSpriteNode(imageNamed: "Pineapple")
         prize.position = CGPoint(x: size.width * 0.5, y: size.height * 0.7)
@@ -234,7 +232,7 @@ class GameScene: SKScene {
         else {
             return
         }
-   
+
         for (i, vineData) in vines.enumerated() {
             let anchorPoint = CGPoint(
                 x: vineData.relAnchorPoint.x * size.width,
@@ -251,10 +249,11 @@ class GameScene: SKScene {
             vine.attachToPrize(prize)
         }
     }
- 
+
     private func setUpCrocodile() {
         crocodile = SKSpriteNode(imageNamed: "CrocMouthClosed")
-        crocodile.position = CGPoint(x: size.width * 0.75, y: size.height * 0.312)
+
+        crocodile.position = CGPoint(x: size.width * thePercentageOfScreenX, y: size.height * 0.312)
         crocodile.zPosition = Layer.crocodile
         crocodile.physicsBody = SKPhysicsBody(
             texture: SKTexture(imageNamed: "CrocMask"),
@@ -263,21 +262,21 @@ class GameScene: SKScene {
         crocodile.physicsBody?.collisionBitMask = 0
         crocodile.physicsBody?.contactTestBitMask = PhysicsCategory.prize
         crocodile.physicsBody?.isDynamic = false
-       
+
         addChild(crocodile)
-       
+
         animateCrocodile()
         let duration = Double.random(in: 2 ... 4)
         let open = SKAction.setTexture(SKTexture(imageNamed: "CrocMouthOpen"))
         let wait = SKAction.wait(forDuration: duration)
         let close = SKAction.setTexture(SKTexture(imageNamed: "CrocMouthClosed"))
         let sequence = SKAction.sequence([wait, open, wait, close])
-       
+
         crocodile.run(.repeatForever(sequence))
     }
- 
+
     private func animateCrocodile() {}
- 
+
     private func runNomNomAnimation(withDelay delay: TimeInterval) {
         crocodile.removeAllActions()
 
@@ -288,16 +287,16 @@ class GameScene: SKScene {
 
         crocodile.run(sequence)
     }
-  
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         didCutVine = false
     }
- 
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let startPoint = touch.location(in: self)
             let endPoint = touch.previousLocation(in: self)
-     
+
             // check if vine cut
             scene?.physicsWorld.enumerateBodies(
                 alongRayStart: startPoint,
@@ -305,17 +304,17 @@ class GameScene: SKScene {
                 using: { body, _, _, _ in
                     self.checkIfVineCut(withBody: body)
                 })
-     
+
             // produce some nice particles
             showMoveParticles(touchPosition: startPoint)
         }
     }
- 
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         particles?.removeFromParent()
         particles = nil
     }
- 
+
     private func showMoveParticles(touchPosition: CGPoint) {
         if particles == nil {
             particles = SKEmitterNode(fileNamed: Scene.particles)
@@ -325,7 +324,7 @@ class GameScene: SKScene {
         }
         particles!.position = touchPosition
     }
- 
+
     private func checkIfVineCut(withBody body: SKPhysicsBody) {
         let node = body.node!
         if didCutVine, !GameConfiguration.canCutMultipleVinesAtOnce {
@@ -343,7 +342,7 @@ class GameScene: SKScene {
                 let removeNode = SKAction.removeFromParent()
                 let sequence = SKAction.sequence([fadeAway, removeNode])
                 node.run(sequence)
-       
+
             })
             didCutVine = true
         }
@@ -351,8 +350,10 @@ class GameScene: SKScene {
         crocodile.texture = SKTexture(imageNamed: "CrocMouthOpen")
         animateCrocodile()
     }
- 
+
     private func switchToNewGame(withTransition transition: SKTransition) {
+        torqueValue = torqueValue + 5
+        thePercentageOfScreenX = CGFloat.random(in: 0.2..<0.8)
         let delay = SKAction.wait(forDuration: 1)
         let sceneChange = SKAction.run {
             let scene = GameScene(size: self.size)
@@ -371,7 +372,7 @@ extension GameScene: SKPhysicsContactDelegate {
             switchToNewGame(withTransition: .fade(withDuration: 1.0))
         }
     }
- 
+
     func didBegin(_ contact: SKPhysicsContact) {
         if (contact.bodyA.node == crocodile && contact.bodyB.node == prize)
             || (contact.bodyA.node == prize && contact.bodyB.node == crocodile)
@@ -388,9 +389,7 @@ extension GameScene: SKPhysicsContactDelegate {
     }
 }
 
-
 let gameView = GameView(frame: CGRect(x: 0, y: 0, width: 800, height: 600))
 PlaygroundPage.current.setLiveView(gameView)
 
-
-//#-end-hidden-code
+// #-end-hidden-code
