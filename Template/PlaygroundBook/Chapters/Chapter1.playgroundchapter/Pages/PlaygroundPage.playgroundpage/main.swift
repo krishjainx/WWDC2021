@@ -12,8 +12,9 @@ import PlaygroundSupport
 import SpriteKit
 import UIKit
 
-var torqueValue: CGFloat = 1
 var thePercentageOfScreenX = CGFloat.random(in: 0.35..<1)
+var torqueValue: CGFloat = 1
+
 
 public class GameView: SKView {
     override public init(frame: CGRect) {
