@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E60660A261E6A0F00BDE2AA /* GreatVibes-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2E606609261E6A0F00BDE2AA /* GreatVibes-Regular.ttf */; };
+		2E606624261E701500BDE2AA /* CheeZeeJungle.caf in Resources */ = {isa = PBXBuildFile; fileRef = 2E606620261E701500BDE2AA /* CheeZeeJungle.caf */; };
+		2E606625261E701500BDE2AA /* NomNom.caf in Resources */ = {isa = PBXBuildFile; fileRef = 2E606621261E701500BDE2AA /* NomNom.caf */; };
+		2E606626261E701500BDE2AA /* Slice.caf in Resources */ = {isa = PBXBuildFile; fileRef = 2E606622261E701500BDE2AA /* Slice.caf */; };
+		2E606627261E701500BDE2AA /* Splash.caf in Resources */ = {isa = PBXBuildFile; fileRef = 2E606623261E701500BDE2AA /* Splash.caf */; };
 		2EB565F2261CBAD800B015A3 /* Particle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 2EB565F0261CBAD800B015A3 /* Particle.sks */; };
 		2EB565F3261CBAD800B015A3 /* VineData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2EB565F1261CBAD800B015A3 /* VineData.plist */; };
 		2EB565FD261CBBD800B015A3 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = 2EB565FC261CBBD800B015A3 /* Particle.png */; };
@@ -135,6 +140,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2E606609261E6A0F00BDE2AA /* GreatVibes-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GreatVibes-Regular.ttf"; sourceTree = "<group>"; };
+		2E606620261E701500BDE2AA /* CheeZeeJungle.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = CheeZeeJungle.caf; sourceTree = "<group>"; };
+		2E606621261E701500BDE2AA /* NomNom.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NomNom.caf; sourceTree = "<group>"; };
+		2E606622261E701500BDE2AA /* Slice.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Slice.caf; sourceTree = "<group>"; };
+		2E606623261E701500BDE2AA /* Splash.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Splash.caf; sourceTree = "<group>"; };
 		2EB565F0261CBAD800B015A3 /* Particle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Particle.sks; sourceTree = "<group>"; };
 		2EB565F1261CBAD800B015A3 /* VineData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = VineData.plist; sourceTree = "<group>"; };
 		2EB565FC261CBBD800B015A3 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
@@ -202,6 +212,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E60661F261E701500BDE2AA /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				2E606620261E701500BDE2AA /* CheeZeeJungle.caf */,
+				2E606621261E701500BDE2AA /* NomNom.caf */,
+				2E606622261E701500BDE2AA /* Slice.caf */,
+				2E606623261E701500BDE2AA /* Splash.caf */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 		5E086DA4204F706E004D8D25 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -383,8 +404,10 @@
 			isa = PBXGroup;
 			children = (
 				5EF2F97E2054B6E400191409 /* ManifestPlist.strings */,
+				2E606609261E6A0F00BDE2AA /* GreatVibes-Regular.ttf */,
 				5E086DCC2051DDAE004D8D25 /* LiveView.storyboard */,
 				2EB565F0261CBAD800B015A3 /* Particle.sks */,
+				2E60661F261E701500BDE2AA /* Sounds */,
 				2EB565FC261CBBD800B015A3 /* Particle.png */,
 				2EB565F1261CBAD800B015A3 /* VineData.plist */,
 				5E551EC42371FC3F00784365 /* Assets.xcassets */,
@@ -552,11 +575,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				5EF2F97C2054B6E400191409 /* ManifestPlist.strings in Resources */,
+				2E60660A261E6A0F00BDE2AA /* GreatVibes-Regular.ttf in Resources */,
 				2EB565FD261CBBD800B015A3 /* Particle.png in Resources */,
 				2EB565F3261CBAD800B015A3 /* VineData.plist in Resources */,
+				2E606627261E701500BDE2AA /* Splash.caf in Resources */,
 				5E551EC52371FC3F00784365 /* Assets.xcassets in Resources */,
 				5E086DCA2051DDAE004D8D25 /* LiveView.storyboard in Resources */,
+				2E606625261E701500BDE2AA /* NomNom.caf in Resources */,
+				2E606626261E701500BDE2AA /* Slice.caf in Resources */,
 				2EB565F2261CBAD800B015A3 /* Particle.sks in Resources */,
+				2E606624261E701500BDE2AA /* CheeZeeJungle.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

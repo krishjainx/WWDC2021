@@ -1,7 +1,3 @@
-/*:
-  # Physics of Cut The Rope
- Hi, there. This project shows the physics of a simple game like cut the rope.
- */
 
 // #-hidden-code
 import AVFoundation
@@ -12,11 +8,37 @@ import PlaygroundSupport
 import SpriteKit
 import UIKit
 
-var thePercentageOfScreenX = CGFloat.random(in: 0.35..<1)
-var torqueValue: CGFloat = 1
+public extension UIImage {
+    static func pixel(ofColor color: UIColor) -> UIImage {
+        let pixel = CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0)
 
+        UIGraphicsBeginImageContext(pixel.size)
+        defer { UIGraphicsEndImageContext() }
+
+        guard let context = UIGraphicsGetCurrentContext() else { return UIImage() }
+
+        context.setFillColor(color.cgColor)
+        context.fill(pixel)
+
+        return UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
+    }
+}
+
+extension UIButton {
+    func setBackgroundColor(_ backgroundColor: UIColor, for state: UIControl.State) {
+        setBackgroundImage(.pixel(ofColor: backgroundColor), for: state)
+    }
+}
+
+var thePercentageOfScreenX = CGFloat.random(in: 0.3..<0.7)
+var torqueValue: CGFloat = 0
+var prizeIsWhat: String = "Pineapple"
+
+let fontURL = Bundle.main.url(forResource: "GreatVibes-Regular", withExtension: "ttf")
+CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)
 
 public class GameView: SKView {
+    var gameScene: GameScene { return self.scene as! GameScene }
     override public init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -29,8 +51,75 @@ public class GameView: SKView {
         let scene = GameScene(size: frame.size)
         scene.scaleMode = .aspectFill
 
+//        BUTTON STUFF
+
+        let button = UIButton(type: .system)
+        button.frame = CGRect(x: self.frame.size.width / 2, y: 1200, width: 200, height: 80)
+        button.tintColor = .white
+        button.setBackgroundColor(.red, for: .normal)
+        button.setTitle("New game", for: .normal)
+        button.titleLabel?.font = UIFont(name: "GreatVibes-Regular", size: 40)!
+        button.layer.cornerRadius = 20
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(buttonClicked), for: .touchUpInside)
+        addSubview(button)
+
+        let button1 = UIButton(type: .system)
+        button1.frame = CGRect(x: self.frame.size.width / 2, y: 1100, width: 200, height: 80)
+        button1.tintColor = .white
+        button1.setBackgroundColor(.red, for: .normal)
+        button1.setTitle("🍬", for: .normal)
+        button1.titleLabel?.font = UIFont(name: "Arial", size: 80)
+        button1.layer.cornerRadius = 20
+        button1.layer.masksToBounds = true
+        button1.addTarget(self, action: #selector(makeCandy), for: .touchUpInside)
+        addSubview(button1)
+
+        let button2 = UIButton(type: .system)
+        button2.frame = CGRect(x: self.frame.size.width / 2 + 210, y: 1100, width: 200, height: 80)
+        button2.tintColor = .white
+        button2.setBackgroundColor(.blue, for: .normal)
+        button2.setTitle("🍐", for: .normal)
+        button2.titleLabel?.font = UIFont(name: "Arial", size: 80)
+        button2.layer.cornerRadius = 20
+        button2.layer.masksToBounds = true
+        button2.addTarget(self, action: #selector(makePear), for: .touchUpInside)
+        addSubview(button2)
+
+        let button3 = UIButton(type: .system)
+        button3.frame = CGRect(x: self.frame.size.width / 2 - 210, y: 1100, width: 200, height: 80)
+        button3.tintColor = .white
+        button3.setBackgroundColor(.blue, for: .normal)
+        button3.setTitle("🍫", for: .normal)
+        button3.titleLabel?.font = UIFont(name: "Arial", size: 80)
+        button3.layer.cornerRadius = 20
+        button3.layer.masksToBounds = true
+        button3.addTarget(self, action: #selector(makeChocolate), for: .touchUpInside)
+        addSubview(button3)
+
+//        ENDBUTTON STUFF
+
         // Present the scene.
         presentScene(scene)
+    }
+
+    @objc func makePear() {
+        prizeIsWhat = "Pineapple"
+        gameScene.switchToNewGame(withTransition: .fade(withDuration: 0.5))
+    }
+
+    @objc func makeChocolate() {
+        prizeIsWhat = "Chocolate"
+        gameScene.switchToNewGame(withTransition: .fade(withDuration: 0.5))
+    }
+
+    @objc func makeCandy() {
+        prizeIsWhat = "Candy"
+        gameScene.switchToNewGame(withTransition: .fade(withDuration: 0.5))
+    }
+
+    @objc func buttonClicked() {
+        gameScene.switchToNewGame(withTransition: .fade(withDuration: 0.5))
     }
 
     @available(*, unavailable)
@@ -145,8 +234,15 @@ public enum ImageName {
     static let crocMouthClosed = "CrocMouthClosed"
     static let crocMouthOpen = "CrocMouthOpen"
     static let crocMask = "CrocMask"
-    static let prize = "Pineapple"
+    static let prize = prizeIsWhat
     static let prizeMask = "PineappleMask"
+}
+
+enum SoundFile {
+    static let backgroundMusic = "CheeZeeJungle.caf"
+    static let slice = "Slice.caf"
+    static let splash = "Splash.caf"
+    static let nomNom = "NomNom.caf"
 }
 
 public enum Layer {
@@ -211,7 +307,7 @@ class GameScene: SKScene {
     }
 
     private func setUpPrize() {
-        prize = SKSpriteNode(imageNamed: "Pineapple")
+        prize = SKSpriteNode(imageNamed: prizeIsWhat)
         prize.position = CGPoint(x: size.width * 0.5, y: size.height * 0.7)
         prize.zPosition = Layer.prize
         prize.physicsBody = SKPhysicsBody(circleOfRadius: prize.size.height / 2)
@@ -352,9 +448,9 @@ class GameScene: SKScene {
         animateCrocodile()
     }
 
-    private func switchToNewGame(withTransition transition: SKTransition) {
-        torqueValue = torqueValue + 5
-        thePercentageOfScreenX = CGFloat.random(in: 0.2..<0.8)
+    @objc func switchToNewGame(withTransition transition: SKTransition) {
+        torqueValue = torqueValue + 0.1
+        thePercentageOfScreenX = CGFloat.random(in: 0.3..<0.7)
         let delay = SKAction.wait(forDuration: 1)
         let sceneChange = SKAction.run {
             let scene = GameScene(size: self.size)
