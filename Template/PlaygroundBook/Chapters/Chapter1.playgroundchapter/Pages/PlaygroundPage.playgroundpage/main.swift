@@ -274,6 +274,15 @@ class GameScene: SKScene {
     private var prize: SKSpriteNode!
     private var particles: SKEmitterNode?
     private var didCutVine = false
+    
+    private static var backgroundMusicPlayer: AVAudioPlayer!
+    
+    private var sliceSoundAction: SKAction!
+    private var splashSoundAction: SKAction!
+    private var nomNomSoundAction: SKAction!
+    
+    private var isLevelOver = false
+ 
 
     override func didMove(to view: SKView) {
         setUpPhysics()
@@ -423,29 +432,31 @@ class GameScene: SKScene {
     }
 
     private func checkIfVineCut(withBody body: SKPhysicsBody) {
-        let node = body.node!
-        if didCutVine, !GameConfiguration.canCutMultipleVinesAtOnce {
-            return
-        }
+      if didCutVine && !GameConfiguration.canCutMultipleVinesAtOnce {
+        return
+      }
+      
+      let node = body.node!
 
-        // if it has a name it must be a vine node
-        if let name = node.name {
-            // snip the vine
-            node.removeFromParent()
+      // if it has a name it must be a vine node
+      if let name = node.name {
+        // snip the vine
+        node.removeFromParent()
 
-            // fade out all nodes matching name
-            enumerateChildNodes(withName: name, using: { node, _ in
-                let fadeAway = SKAction.fadeOut(withDuration: 0.25)
-                let removeNode = SKAction.removeFromParent()
-                let sequence = SKAction.sequence([fadeAway, removeNode])
-                node.run(sequence)
-
-            })
-            didCutVine = true
-        }
+        // fade out all nodes matching name
+        enumerateChildNodes(withName: name, using: { node, _ in
+          let fadeAway = SKAction.fadeOut(withDuration: 0.25)
+          let removeNode = SKAction.removeFromParent()
+          let sequence = SKAction.sequence([fadeAway, removeNode])
+          node.run(sequence)
+        })
+        
         crocodile.removeAllActions()
-        crocodile.texture = SKTexture(imageNamed: "CrocMouthOpen")
+        crocodile.texture = SKTexture(imageNamed: ImageName.crocMouthOpen)
         animateCrocodile()
+        run(sliceSoundAction)
+        didCutVine = true
+      }
     }
 
     @objc func switchToNewGame(withTransition transition: SKTransition) {
@@ -460,30 +471,74 @@ class GameScene: SKScene {
         run(.sequence([delay, sceneChange]))
     }
 
-    private func setUpAudio() {}
+    private func setUpAudio() {
+      if GameScene.backgroundMusicPlayer == nil {
+        let backgroundMusicURL = Bundle.main.url(
+          forResource: SoundFile.backgroundMusic,
+          withExtension: nil)
+        
+        do {
+          let theme = try AVAudioPlayer(contentsOf: backgroundMusicURL!)
+          GameScene.backgroundMusicPlayer = theme
+        } catch {
+          // couldn't load file :[
+        }
+        
+        GameScene.backgroundMusicPlayer.numberOfLoops = -1
+      }
+      
+      if !GameScene.backgroundMusicPlayer.isPlaying {
+        GameScene.backgroundMusicPlayer.play()
+      }
+      
+      sliceSoundAction = .playSoundFileNamed(
+        SoundFile.slice,
+        waitForCompletion: false)
+      splashSoundAction = .playSoundFileNamed(
+        SoundFile.splash,
+        waitForCompletion: false)
+      nomNomSoundAction = .playSoundFileNamed(
+        SoundFile.nomNom,
+        waitForCompletion: false)
+    }
+    
 }
 
 extension GameScene: SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
-        if prize.position.y <= 0 {
-            switchToNewGame(withTransition: .fade(withDuration: 1.0))
-        }
+      if isLevelOver {
+        return
+      }
+      
+      if prize.position.y <= 0 {
+        isLevelOver = true
+        run(splashSoundAction)
+        switchToNewGame(withTransition: .fade(withDuration: 1.0))
+      }
     }
 
     func didBegin(_ contact: SKPhysicsContact) {
-        if (contact.bodyA.node == crocodile && contact.bodyB.node == prize)
-            || (contact.bodyA.node == prize && contact.bodyB.node == crocodile)
-        {
-            // shrink the pineapple away
-            let shrink = SKAction.scale(to: 0, duration: 0.08)
-            let removeNode = SKAction.removeFromParent()
-            let sequence = SKAction.sequence([shrink, removeNode])
-            prize.run(sequence)
-            runNomNomAnimation(withDelay: 0.15)
-            // transition to next level
-            switchToNewGame(withTransition: .doorway(withDuration: 1.0))
-        }
+      if isLevelOver {
+        return
+      }
+
+      if (contact.bodyA.node == crocodile && contact.bodyB.node == prize)
+        || (contact.bodyA.node == prize && contact.bodyB.node == crocodile) {
+        
+        isLevelOver = true
+        
+        // shrink the pineapple away
+        let shrink = SKAction.scale(to: 0, duration: 0.08)
+        let removeNode = SKAction.removeFromParent()
+        let sequence = SKAction.sequence([shrink, removeNode])
+        prize.run(sequence)
+        run(nomNomSoundAction)
+        runNomNomAnimation(withDelay: 0.15)
+        // transition to next level
+        switchToNewGame(withTransition: .doorway(withDuration: 1.0))
+      }
     }
+    
 }
 
 let gameView = GameView(frame: CGRect(x: 0, y: 0, width: 800, height: 600))
